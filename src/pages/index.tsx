@@ -63,6 +63,18 @@ export default function Index() {
       console.log('nftSymbol:', nftSymbol)
       console.log('nftAttributes:', nftAttributes)
 
+      if (chain === undefined) {
+        toast({
+          title: 'Disconnected',
+          description: 'Please connect your wallet first.',
+          status: 'error',
+          duration: 9000,
+          isClosable: true,
+        })
+        setLoading(false)
+        return
+      }
+
       const uri = await makeNftMetadata()
 
       console.log('chain:', chain)
