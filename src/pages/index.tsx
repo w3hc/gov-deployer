@@ -2,7 +2,7 @@ import { Heading, Button, FormControl, FormLabel, Textarea, Input, FormHelperTex
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Head } from '../components/layout/Head'
 import { useState, useEffect } from 'react'
-import { useSigner, useProvider, useNetwork, useAccount } from 'wagmi'
+import { useSigner, useProvider, useNetwork, useAccount, useBalance } from 'wagmi'
 import { ethers, ContractFactory } from 'ethers'
 import { NFT_ABI, NFT_BYTECODE, GOV_ABI, GOV_BYTECODE } from '../utils/config'
 import { UploadFile } from '../components/layout/UploadFile'
@@ -41,12 +41,14 @@ export default function Index() {
     '0xD8a394e7d7894bDF2C57139fF17e5CBAa29Dd977',
     '0xe61A1a5278290B6520f0CEf3F2c71Ba70CF5cf4C',
   ])
-  function App() {
-    const provider = useProvider()
-  }
+  const provider = useProvider()
+  const { data } = useBalance({ address })
+  const userBal = Number(data.formatted)
 
   const deployDao = async (e: any) => {
     e.preventDefault()
+
+    console.log('balance:', userBal)
 
     try {
       setLoading(true)
@@ -67,6 +69,19 @@ export default function Index() {
         toast({
           title: 'Disconnected',
           description: 'Please connect your wallet first.',
+          status: 'error',
+          duration: 9000,
+          isClosable: true,
+        })
+        setLoading(false)
+        return
+      }
+
+      if (userBal === 0) {
+        toast({
+          title: 'Insufficient funds',
+          description:
+            'Sorry, it seems like your wallet does not hold enough ETH to deploy your DAO. Any on-chain interaction requires a drop of ETH: this is how blockchains work. ',
           status: 'error',
           duration: 9000,
           isClosable: true,
@@ -267,6 +282,24 @@ export default function Index() {
                   Tally, meaning that you get a cosy interface where your community can submit proposals and polls, vote, handle the delegation, etc.
                 </p>
                 <br />
+                <p>
+                  It is highly recommended to{' '}
+                  <LinkComponent target="blank" href="https://w3hc.github.io/gov-docs/deployment.html#deployment">
+                    <strong>read our docs</strong>
+                  </LinkComponent>{' '}
+                  and/or{' '}
+                  <LinkComponent
+                    target="blank"
+                    href="https://docs.tally.xyz/knowledge-base/dao-best-practices/running-an-onchain-dao-using-openzeppelin-governor">
+                    <strong>Tally docs</strong>
+                  </LinkComponent>{' '}
+                  to learn more about about the best practices before you create your DAO. And if you don&apos;t feel super confortable in this
+                  process, feel free to{' '}
+                  <LinkComponent target="blank" href="https://discord.com/invite/uSxzJp3J76">
+                    <strong>ask us in Discord.</strong>
+                  </LinkComponent>{' '}
+                  We&apos;re available 24/7: helping you to deploy your own DAO is part of the Web3 Hackers Collective&apos;s mission statement.
+                </p>
               </>
             ) : (
               <>
@@ -274,24 +307,6 @@ export default function Index() {
                 <br />
               </>
             )}
-            <p>
-              It is highly recommended to{' '}
-              <LinkComponent target="blank" href="https://w3hc.github.io/gov-docs/deployment.html#deployment">
-                <strong>read our docs</strong>
-              </LinkComponent>{' '}
-              and/or{' '}
-              <LinkComponent
-                target="blank"
-                href="https://docs.tally.xyz/knowledge-base/dao-best-practices/running-an-onchain-dao-using-openzeppelin-governor">
-                <strong>Tally docs</strong>
-              </LinkComponent>{' '}
-              to learn more about about the best practices before you create your DAO. And if you don&apos;t feel super confortable in this process,
-              feel free to{' '}
-              <LinkComponent target="blank" href="https://discord.com/invite/uSxzJp3J76">
-                <strong>ask us in Discord.</strong>
-              </LinkComponent>{' '}
-              We&apos;re available 24/7: helping you to deploy your own DAO is part of the Web3 Hackers Collective&apos;s mission statement.
-            </p>
             <br />
             <FormControl>
               <FormLabel>DAO Name</FormLabel>
