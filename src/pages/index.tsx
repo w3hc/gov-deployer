@@ -286,8 +286,11 @@ export default function Index() {
                 <strong>Tally docs</strong>
               </LinkComponent>{' '}
               to learn more about about the best practices before you create your DAO. And if you don&apos;t feel super confortable in this process,
-              feel free to jump in our Discord. We&apos;re available 24/7: helping you to deploy your own DAO is part of the Web3 Hackers Collective's
-              mission statement.
+              feel free to{' '}
+              <LinkComponent target="blank" href="https://discord.com/invite/uSxzJp3J76">
+                <strong>ask us in Discord.</strong>
+              </LinkComponent>{' '}
+              We&apos;re available 24/7: helping you to deploy your own DAO is part of the Web3 Hackers Collective&apos;s mission statement.
             </p>
             <br />
             <FormControl>
