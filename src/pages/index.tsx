@@ -81,7 +81,7 @@ export default function Index() {
 
       // Deploy the NFT contract
       const nftFactory = new ContractFactory(NFT_ABI, NFT_BYTECODE, signer)
-      const nft = await nftFactory.deploy(firstMembers, uri)
+      const nft = await nftFactory.deploy(firstMembers, uri, nftName, nftSymbol)
       console.log('tx:', nft.deployTransaction)
       console.log('NFT contract address:', nft.address)
       const nftDeployment = await nft.deployTransaction.wait(1)
