@@ -262,12 +262,9 @@ export default function Index() {
             {chain ? (
               <>
                 <p>
-                  <i>
-                    You&apos;re about to deploy your own DAO to <strong>{chain.name}</strong>. This means you&apos;ll deploy <strong>two</strong>{' '}
-                    Solidity contracts: a membership NFT contract (ERC-721) and a Governor contract. Once deployed, you&apos;ll be able to add it in
-                    Tally, meaning that you get a cosy interface where your community can submit proposals and polls, vote, handle the delegation,
-                    etc.
-                  </i>{' '}
+                  You&apos;re about to deploy your own DAO to <strong>{chain.name}</strong>. This means you&apos;ll deploy <strong>two</strong>{' '}
+                  Solidity contracts: a membership NFT contract (ERC-721) and a Governor contract. Once deployed, you&apos;ll be able to add it in
+                  Tally, meaning that you get a cosy interface where your community can submit proposals and polls, vote, handle the delegation, etc.
                 </p>
                 <br />
               </>
@@ -288,7 +285,9 @@ export default function Index() {
                 href="https://docs.tally.xyz/knowledge-base/dao-best-practices/running-an-onchain-dao-using-openzeppelin-governor">
                 <strong>Tally docs</strong>
               </LinkComponent>{' '}
-              to learn more about about the best practices before you create your DAO.
+              to learn more about about the best practices before you create your DAO. And if you don&apos;t feel super confortable in this process,
+              feel free to jump in our Discord. We&apos;re available 24/7: helping you to deploy your own DAO is part of the Web3 Hackers Collective's
+              mission statement.
             </p>
             <br />
             <FormControl>
