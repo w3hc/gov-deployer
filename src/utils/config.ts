@@ -14,8 +14,8 @@ import {
   gnosis,
 } from '@wagmi/chains'
 
-export const SITE_NAME = 'Gov'
-export const APP_VERSION = 'v0.9.0-beta'
+export const SITE_NAME = 'Gov Deployer'
+export const APP_VERSION = 'v0.1.0-alpha'
 export const SITE_DESCRIPTION = 'Deploy your DAO in a few seconds'
 export const SITE_URL = 'https://w3hc.org'
 export const THEME_INITIAL_COLOR = 'dark'
