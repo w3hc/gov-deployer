@@ -265,7 +265,8 @@ export default function Index() {
                   <i>
                     You&apos;re about to deploy your own DAO to <strong>{chain.name}</strong>. This means you&apos;ll deploy <strong>two</strong>{' '}
                     Solidity contracts: a membership NFT contract (ERC-721) and a Governor contract. Once deployed, you&apos;ll be able to add it in
-                    Tally.
+                    Tally, meaning that you get a cosy interface where your community can submit proposals and polls, vote, handle the delegation,
+                    etc.
                   </i>{' '}
                 </p>
                 <br />
@@ -277,11 +278,17 @@ export default function Index() {
               </>
             )}
             <p>
-              Feel free to{' '}
-              <LinkComponent href="https://w3hc.github.io/gov-docs/deployment.html#deployment">
-                <strong>read the docs</strong>
+              It is highly recommended to{' '}
+              <LinkComponent target="blank" href="https://w3hc.github.io/gov-docs/deployment.html#deployment">
+                <strong>read our docs</strong>
               </LinkComponent>{' '}
-              to learn more about what&apos;s required to deploy.
+              and/or{' '}
+              <LinkComponent
+                target="blank"
+                href="https://docs.tally.xyz/knowledge-base/dao-best-practices/running-an-onchain-dao-using-openzeppelin-governor">
+                <strong>Tally docs</strong>
+              </LinkComponent>{' '}
+              to learn more about about the best practices before you create your DAO.
             </p>
             <br />
             <FormControl>
