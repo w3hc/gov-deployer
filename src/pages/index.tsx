@@ -14,12 +14,16 @@ import { ExternalLinkIcon } from '@chakra-ui/icons'
 import Link from 'next/link'
 
 export default function Index() {
+  // const { address, isConnecting, isDisconnected } = useAccount()
+  // const { data } = useBalance({ address })
+
   const [loading, setLoading] = useState(false)
   const [showAdvanced, setShowAdvanced] = useState(false)
   const [isDeployed, setIsDeployed] = useState('')
   const [daoName, setDaoName] = useState('Thistles Collective')
   const [missionStatement, setMissionStatement] = useState('We want to protect the thistles.')
-
+  // const [userBal, setUserbal] = useState(data ? Number(data.formatted) : 0)
+  const [userBal, setUserbal] = useState(0)
   const [fileName, setFileName] = useState(null)
   const [votingPeriod, setVotingPeriod] = useState('10000')
   const [votingDelay, setVotingDelay] = useState('1')
@@ -28,22 +32,30 @@ export default function Index() {
   const [nftName, setNftName] = useState(daoName + ' Membership NFT')
   const [nftSymbol, setNftSymbol] = useState('THISTLES')
   const [nftAttributes, setNftAttributes] = useState('1')
-  const [plaintext, setPlaintext] = useState(null)
+  const [plaintext, setPlaintext] = useState('')
   const [daoInfo, setDaoInfo] = useState({ govAddress: '', govBlock: 0, nftAddress: '', nftBlock: 0 })
 
   const router = useRouter()
   const { data: signer, isError, isLoading } = useSigner()
   const { chain } = useNetwork()
   const toast = useToast()
+
   const { address, isConnecting, isDisconnected } = useAccount()
+  const { data } = useBalance({ address })
+
   const [firstMembers, setFirstMembers] = useState<any>([
     address,
     '0xD8a394e7d7894bDF2C57139fF17e5CBAa29Dd977',
     '0xe61A1a5278290B6520f0CEf3F2c71Ba70CF5cf4C',
   ])
   const provider = useProvider()
-  const { data } = useBalance({ address })
-  const userBal = Number(data.formatted)
+
+  useEffect(() => {
+    if (data) {
+      setUserbal(Number(data.formatted))
+    }
+  }),
+    [address]
 
   const deployDao = async (e: any) => {
     e.preventDefault()
@@ -95,7 +107,7 @@ export default function Index() {
       console.log('chain:', chain)
 
       // Deploy the NFT contract
-      const nftFactory = new ContractFactory(NFT_ABI, NFT_BYTECODE, signer)
+      const nftFactory = new ContractFactory(NFT_ABI, NFT_BYTECODE, signer as any)
       const nft = await nftFactory.deploy(firstMembers, uri, nftName, nftSymbol)
       console.log('tx:', nft.deployTransaction)
       console.log('NFT contract address:', nft.address)
@@ -107,7 +119,7 @@ export default function Index() {
       // Deploy the Gov contract
       const manifestoContent = '# ' + daoName + ' Manifesto ## Statement of intent ' + '**' + missionStatement + '**'
       const manifesto = UploadData(manifestoContent, 'manifesto.md')
-      const govFactory = new ContractFactory(GOV_ABI, GOV_BYTECODE, signer)
+      const govFactory = new ContractFactory(GOV_ABI, GOV_BYTECODE, signer as any)
       const gov = await govFactory.deploy(nft.address, manifesto, daoName, votingDelay, votingPeriod, votingThreshold, quorum)
       console.log('Gov deployment tx:', gov.deployTransaction)
       console.log('Gov contract address:', gov.address)
@@ -133,7 +145,7 @@ export default function Index() {
         nftAddress: nft.address,
         nftBlock: nftDeployment.blockNumber,
       })
-    } catch (e) {
+    } catch (e: any) {
       console.log('error:', e)
       console.log('e.message:', e.message)
       toast({
@@ -236,9 +248,9 @@ export default function Index() {
               <ListItem>
                 Governor address: <strong>{daoInfo.govAddress}</strong>
               </ListItem>
-              <ListItem>
-                Network: <strong>{chain.name}</strong>
-              </ListItem>
+              {/* <ListItem>
+                Network: <strong>{chain ? chain.name : 'Undetected network'}</strong>
+              </ListItem> */}
               <ListItem>
                 Type: <strong>Open Zeppelin Governor</strong>
               </ListItem>
