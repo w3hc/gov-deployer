@@ -24,6 +24,14 @@ Add your own keys in your `.env` file, then:
 npm run dev
 ```
 
+## Supported networks
+
+- Ethereum Mainnet
+- Goerli
+- Polygon
+- Optimism
+- Avalanche
+
 ## Versions
 
 - Node [v18.15.0](https://nodejs.org/uk/blog/release/v18.15.0/)

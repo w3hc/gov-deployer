@@ -54,6 +54,7 @@ export default function Index() {
     if (data) {
       setUserbal(Number(data.formatted))
     }
+    setFirstMembers([address, '0xD8a394e7d7894bDF2C57139fF17e5CBAa29Dd977', '0xe61A1a5278290B6520f0CEf3F2c71Ba70CF5cf4C'])
   }),
     [address]
 
