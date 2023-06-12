@@ -288,7 +288,8 @@ export default function Index() {
                 <p>
                   You&apos;re about to deploy your own DAO to <strong>{chain.name}</strong>. This means you&apos;ll deploy <strong>two</strong>{' '}
                   Solidity contracts: a membership NFT contract (ERC-721) and a Governor contract. Once deployed, you&apos;ll be able to add it in
-                  Tally, meaning that you get a cosy interface where your community can submit proposals and polls, vote, handle the delegation, etc.
+                  Tally, meaning that you get a fresh interface for your community so that everyone can submit proposals and polls, vote, handle the
+                  delegations, etc.
                 </p>
                 <br />
                 <p>
@@ -307,7 +308,7 @@ export default function Index() {
                   <LinkComponent target="blank" href="https://discord.com/invite/uSxzJp3J76">
                     <strong>ask us in Discord.</strong>
                   </LinkComponent>{' '}
-                  We&apos;re available 24/7: helping you to deploy your own DAO is part of the Web3 Hackers Collective&apos;s mission statement.
+                  We&apos;re available 24/7!
                 </p>
               </>
             ) : (
@@ -320,17 +321,21 @@ export default function Index() {
             <FormControl>
               <FormLabel>DAO Name</FormLabel>
               <Input value={daoName} onChange={(e) => handleDaoNameChange(e.target.value)} placeholder="Butterfly Collective" />
+              <FormHelperText>Choose something that sounds good and also echoes your DAO mission statement.</FormHelperText>
+
               <br />
               <br />
               <FormLabel>Mission statement</FormLabel>
               <Textarea value={missionStatement} onChange={(e) => setMissionStatement(e.target.value)} placeholder={missionStatement} />
+              <FormHelperText>Extremely important. It should probably begin with &quot;We want to&quot;</FormHelperText>
+
               <br />
               <br />
               <FormLabel>First members wallet adresses</FormLabel>
               <Input value={firstMembers} onChange={(e) => setFirstMembers(e.target.value)} placeholder={firstMembers} />
               <FormHelperText>These wallets will receive the membership NFT.</FormHelperText>
               <br />
-
+              <br />
               <FormLabel>DAO Membership NFT image</FormLabel>
               <input
                 className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
@@ -341,6 +346,7 @@ export default function Index() {
                   handleFileChange(e.target.files[0])
                 }}
               />
+              <FormHelperText>It will be the image of your membership NFT. It can be changed in the future.</FormHelperText>
 
               {!showAdvanced && (
                 <>
