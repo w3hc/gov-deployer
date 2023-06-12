@@ -14,15 +14,11 @@ import { ExternalLinkIcon } from '@chakra-ui/icons'
 import Link from 'next/link'
 
 export default function Index() {
-  // const { address, isConnecting, isDisconnected } = useAccount()
-  // const { data } = useBalance({ address })
-
   const [loading, setLoading] = useState(false)
   const [showAdvanced, setShowAdvanced] = useState(false)
   const [isDeployed, setIsDeployed] = useState('')
   const [daoName, setDaoName] = useState('Thistles Collective')
   const [missionStatement, setMissionStatement] = useState('We want to protect the thistles.')
-  // const [userBal, setUserbal] = useState(data ? Number(data.formatted) : 0)
   const [userBal, setUserbal] = useState(0)
   const [fileName, setFileName] = useState(null)
   const [votingPeriod, setVotingPeriod] = useState('10000')
@@ -288,9 +284,14 @@ export default function Index() {
                 <p>
                   You&apos;re about to deploy your own DAO to <strong>{chain.name}</strong>. This means you&apos;ll deploy <strong>two</strong>{' '}
                   Solidity contracts: a membership NFT contract (ERC-721) and a Governor contract. Once deployed, you&apos;ll be able to add it in
-                  Tally, meaning that you get a cosy interface where your community can submit proposals and polls, vote, handle the delegation, etc.
+                  Tally, meaning that you get a fresh interface for your community so that everyone can submit proposals and polls, vote, handle the
+                  delegations, etc.
                 </p>
-                <br />
+                <LinkComponent target="blank" href="https://www.tally.xyz/gov/purple-thistles-co">
+                  <Button mt={4} mb={4} colorScheme="purple" size="xs" variant="outline">
+                    View an example on Tally
+                  </Button>
+                </LinkComponent>{' '}
                 <p>
                   It is highly recommended to{' '}
                   <LinkComponent target="blank" href="https://w3hc.github.io/gov-docs/deployment.html#deployment">
@@ -307,7 +308,7 @@ export default function Index() {
                   <LinkComponent target="blank" href="https://discord.com/invite/uSxzJp3J76">
                     <strong>ask us in Discord.</strong>
                   </LinkComponent>{' '}
-                  We&apos;re available 24/7: helping you to deploy your own DAO is part of the Web3 Hackers Collective&apos;s mission statement.
+                  We&apos;re available 24/7!
                 </p>
               </>
             ) : (
@@ -320,17 +321,26 @@ export default function Index() {
             <FormControl>
               <FormLabel>DAO Name</FormLabel>
               <Input value={daoName} onChange={(e) => handleDaoNameChange(e.target.value)} placeholder="Butterfly Collective" />
+              <FormHelperText>Choose something that sounds good and also echoes your DAO mission statement.</FormHelperText>
+
               <br />
               <br />
               <FormLabel>Mission statement</FormLabel>
               <Textarea value={missionStatement} onChange={(e) => setMissionStatement(e.target.value)} placeholder={missionStatement} />
+              <FormHelperText>
+                Extremely important. It should probably begin with &quot;We want to&quot;. It will require a community vote to change it.
+              </FormHelperText>
+
               <br />
               <br />
               <FormLabel>First members wallet adresses</FormLabel>
               <Input value={firstMembers} onChange={(e) => setFirstMembers(e.target.value)} placeholder={firstMembers} />
-              <FormHelperText>These wallets will receive the membership NFT.</FormHelperText>
+              <FormHelperText>
+                These wallets will receive the membership NFT. These people will get 100% of the voting power so it probably shouldn&apos;t be random
+                people.
+              </FormHelperText>
               <br />
-
+              <br />
               <FormLabel>DAO Membership NFT image</FormLabel>
               <input
                 className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
@@ -341,6 +351,7 @@ export default function Index() {
                   handleFileChange(e.target.files[0])
                 }}
               />
+              <FormHelperText>It will be the image of your membership NFT. It can be changed in the future.</FormHelperText>
 
               {!showAdvanced && (
                 <>
@@ -359,23 +370,30 @@ export default function Index() {
 
                   <FormLabel>Voting period</FormLabel>
                   <Input value={votingPeriod} onChange={(e) => setVotingPeriod(e.target.value)} placeholder={votingPeriod} />
+                  <FormHelperText>Be super careful with this one. It&apos;s a number of locks</FormHelperText>
                   <br />
                   <br />
                   <FormLabel>Voting delay</FormLabel>
                   <Input value={votingDelay} onChange={(e) => setVotingDelay(e.target.value)} placeholder={votingDelay} />
+                  <FormHelperText>How many blocks before the voting period starts?</FormHelperText>
                   <br />
                   <br />
                   <FormLabel>Voting threshold</FormLabel>
                   <Input value={votingThreshold} onChange={(e) => setVotingThreshold(e.target.value)} placeholder={votingThreshold} />
+                  <FormHelperText>
+                    1 if you want only the members to be allowed to submit proposals, 0 if you allow non-members to submit proposals (can get spammy).{' '}
+                  </FormHelperText>
                   <br />
                   <br />
                   <FormLabel>Quorum</FormLabel>
                   <Input value={quorum} onChange={(e) => setQuorum(e.target.value)} placeholder={quorum} />
+                  <FormHelperText>The minimum participation rate required to make a proposal pass.</FormHelperText>
                   <br />
                   <br />
                   <FormLabel>NFT name</FormLabel>
                   <Input value={nftName} onChange={(e) => setNftName(e.target.value)} placeholder={nftName} />
                   <FormHelperText>What&apos;s the name of the membership NFT?</FormHelperText>
+                  <br />
                   <br />
                   <FormLabel>NFT symbol</FormLabel>
                   <Input value={nftSymbol} onChange={(e) => setNftSymbol(e.target.value)} placeholder={nftSymbol} />
