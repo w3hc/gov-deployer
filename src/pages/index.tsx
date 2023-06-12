@@ -32,7 +32,7 @@ export default function Index() {
   const [nftName, setNftName] = useState(daoName + ' Membership NFT')
   const [nftSymbol, setNftSymbol] = useState('THISTLES')
   const [nftAttributes, setNftAttributes] = useState('1')
-  const [plaintext, setPlaintext] = useState('')
+  const [plaintext, setPlaintext] = useState(null)
   const [daoInfo, setDaoInfo] = useState({ govAddress: '', govBlock: 0, nftAddress: '', nftBlock: 0 })
 
   const router = useRouter()
@@ -72,6 +72,7 @@ export default function Index() {
       console.log('missionStatement:', missionStatement)
       console.log('firstMembers:', firstMembers)
       console.log('fileName:', fileName)
+      console.log('plaintext:', plaintext)
       console.log('votingPeriod:', votingPeriod)
       console.log('votingDelay:', votingDelay)
       console.log('votingThreshold:', votingThreshold)
@@ -170,15 +171,16 @@ export default function Index() {
 
   const makeNftMetadata = async () => {
     let nftImageCid: any
-    console.log('plaintext:', plaintext)
-    console.log('fileName:', fileName)
+
+    console.log('[makeNftMetadata] plaintext:', plaintext)
+    console.log('[makeNftMetadata] fileName:', fileName)
 
     if (fileName) {
-      nftImageCid = 'https://bafybeichjaz2dxyvsinz2nx4ho4dmx3qkgvtkitymaeh7jsguhrpbknsru.ipfs.w3s.link/thistle-black-pixel.jpg'
+      nftImageCid = await UploadFile(plaintext, fileName)
     } else {
       nftImageCid = 'https://bafybeichjaz2dxyvsinz2nx4ho4dmx3qkgvtkitymaeh7jsguhrpbknsru.ipfs.w3s.link/thistle-black-pixel.jpg'
     }
-    console.log('nftImageCid:', nftImageCid)
+    console.log('[makeNftMetadata] nftImageCid:', nftImageCid)
 
     const metadata = {
       name: nftName,
@@ -220,15 +222,7 @@ export default function Index() {
   const handleFileChange = (event: any) => {
     const file = event
     setFileName(file.name)
-    const reader = new FileReader()
-    reader.readAsDataURL(file)
-    reader.onload = (event) => {
-      const plaintext = event.target?.result as string
-      setPlaintext(plaintext)
-    }
-    reader.onerror = (error) => {
-      console.log('File Input Error: ', error)
-    }
+    setPlaintext(file)
   }
 
   return (
@@ -335,16 +329,18 @@ export default function Index() {
               <FormLabel>First members wallet adresses</FormLabel>
               <Input value={firstMembers} onChange={(e) => setFirstMembers(e.target.value)} placeholder={firstMembers} />
               <FormHelperText>These wallets will receive the membership NFT.</FormHelperText>
-              {/*<br />
+              <br />
 
-          <FormLabel>DAO Membership NFT image</FormLabel>
-          <input
-            className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
-            id="file_input"
-            type="file"
-            style={{ minWidth: '400px', width: '100%' }}
-            onChange={(e) => handleFileChange(e.target.files[0])}
-          /> */}
+              <FormLabel>DAO Membership NFT image</FormLabel>
+              <input
+                className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+                id="file_input"
+                type="file"
+                style={{ minWidth: '400px', width: '100%' }}
+                onChange={(e) => {
+                  handleFileChange(e.target.files[0])
+                }}
+              />
 
               {!showAdvanced && (
                 <>
