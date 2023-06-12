@@ -327,13 +327,18 @@ export default function Index() {
               <br />
               <FormLabel>Mission statement</FormLabel>
               <Textarea value={missionStatement} onChange={(e) => setMissionStatement(e.target.value)} placeholder={missionStatement} />
-              <FormHelperText>Extremely important. It should probably begin with &quot;We want to&quot;</FormHelperText>
+              <FormHelperText>
+                Extremely important. It should probably begin with &quot;We want to&quot;. It will require a community vote to change it.
+              </FormHelperText>
 
               <br />
               <br />
               <FormLabel>First members wallet adresses</FormLabel>
               <Input value={firstMembers} onChange={(e) => setFirstMembers(e.target.value)} placeholder={firstMembers} />
-              <FormHelperText>These wallets will receive the membership NFT.</FormHelperText>
+              <FormHelperText>
+                These wallets will receive the membership NFT. These people will get 100% of the voting power so it probably shouldn&apos;t be random
+                people.
+              </FormHelperText>
               <br />
               <br />
               <FormLabel>DAO Membership NFT image</FormLabel>
@@ -365,23 +370,30 @@ export default function Index() {
 
                   <FormLabel>Voting period</FormLabel>
                   <Input value={votingPeriod} onChange={(e) => setVotingPeriod(e.target.value)} placeholder={votingPeriod} />
+                  <FormHelperText>Be super careful with this one. It&apos;s a number of locks</FormHelperText>
                   <br />
                   <br />
                   <FormLabel>Voting delay</FormLabel>
                   <Input value={votingDelay} onChange={(e) => setVotingDelay(e.target.value)} placeholder={votingDelay} />
+                  <FormHelperText>How many blocks before the voting period starts?</FormHelperText>
                   <br />
                   <br />
                   <FormLabel>Voting threshold</FormLabel>
                   <Input value={votingThreshold} onChange={(e) => setVotingThreshold(e.target.value)} placeholder={votingThreshold} />
+                  <FormHelperText>
+                    1 if you want only the members to be allowed to submit proposals, 0 if you allow non-members to submit proposals (can get spammy).{' '}
+                  </FormHelperText>
                   <br />
                   <br />
                   <FormLabel>Quorum</FormLabel>
                   <Input value={quorum} onChange={(e) => setQuorum(e.target.value)} placeholder={quorum} />
+                  <FormHelperText>The minimum participation rate required to make a proposal pass.</FormHelperText>
                   <br />
                   <br />
                   <FormLabel>NFT name</FormLabel>
                   <Input value={nftName} onChange={(e) => setNftName(e.target.value)} placeholder={nftName} />
                   <FormHelperText>What&apos;s the name of the membership NFT?</FormHelperText>
+                  <br />
                   <br />
                   <FormLabel>NFT symbol</FormLabel>
                   <Input value={nftSymbol} onChange={(e) => setNftSymbol(e.target.value)} placeholder={nftSymbol} />
