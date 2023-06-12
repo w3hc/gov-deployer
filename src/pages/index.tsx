@@ -14,15 +14,11 @@ import { ExternalLinkIcon } from '@chakra-ui/icons'
 import Link from 'next/link'
 
 export default function Index() {
-  // const { address, isConnecting, isDisconnected } = useAccount()
-  // const { data } = useBalance({ address })
-
   const [loading, setLoading] = useState(false)
   const [showAdvanced, setShowAdvanced] = useState(false)
   const [isDeployed, setIsDeployed] = useState('')
   const [daoName, setDaoName] = useState('Thistles Collective')
   const [missionStatement, setMissionStatement] = useState('We want to protect the thistles.')
-  // const [userBal, setUserbal] = useState(data ? Number(data.formatted) : 0)
   const [userBal, setUserbal] = useState(0)
   const [fileName, setFileName] = useState(null)
   const [votingPeriod, setVotingPeriod] = useState('10000')
@@ -291,7 +287,11 @@ export default function Index() {
                   Tally, meaning that you get a fresh interface for your community so that everyone can submit proposals and polls, vote, handle the
                   delegations, etc.
                 </p>
-                <br />
+                <LinkComponent target="blank" href="https://www.tally.xyz/gov/purple-thistles-co">
+                  <Button mt={4} mb={4} colorScheme="purple" size="xs" variant="outline">
+                    View an example on Tally
+                  </Button>
+                </LinkComponent>{' '}
                 <p>
                   It is highly recommended to{' '}
                   <LinkComponent target="blank" href="https://w3hc.github.io/gov-docs/deployment.html#deployment">
