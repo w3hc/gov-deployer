@@ -1,10 +1,9 @@
 import React from 'react'
-import { Flex, useColorModeValue, Spacer, Heading } from '@chakra-ui/react'
-import { SITE_NAME, APP_VERSION } from '../../utils/config'
+import { Image, Text, Box, Card, CardBody, useColorModeValue, Spacer, Flex } from '@chakra-ui/react'
+
+import { SITE_NAME } from 'utils/config'
 import { LinkComponent } from './LinkComponent'
 import { ThemeSwitcher } from './ThemeSwitcher'
-import { ConnectKitButton } from 'connectkit'
-import Image from 'next/image'
 
 interface Props {
   className?: string
@@ -18,7 +17,6 @@ export function Header(props: Props) {
       <div style={{ borderRadius: '10px', overflow: 'hidden' }}>
         <LinkComponent href="/">
           <Image
-            priority
             width="50"
             height="50"
             alt="gov-deployer-logo"
@@ -30,7 +28,8 @@ export function Header(props: Props) {
       <Spacer />
 
       <Flex alignItems="center" gap={4}>
-        <ConnectKitButton />
+        {/* <PassportScore /> */}
+        <w3m-button />
         <ThemeSwitcher />
       </Flex>
     </Flex>

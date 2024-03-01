@@ -6,36 +6,29 @@ Live at [https://gov-deployer.on.fleek.co/](https://gov-deployer.on.fleek.co/)
 
 ## Install
 
-```sh
-npm i
+```bash
+pnpm install
 ```
 
 ## Run
 
-Create a `.env` on the model of `.env.example`:
+Create a `.env` on the model of `.env.template`:
 
 ```sh
-cp .env.example .env
+cp .env.template .env
 ```
 
 Add your own keys in your `.env` file, then:
 
-```sh
-npm run dev
+```bash
+pnpm dev
 ```
 
-## Supported networks
+## Build
 
-- Ethereum Mainnet
-- Goerli
-- Polygon
-- Optimism
-- Avalanche
-
-## Versions
-
-- Node [v18.15.0](https://nodejs.org/uk/blog/release/v18.15.0/)
-- NPM [v9.5.0](https://github.com/npm/cli/releases/tag/v9.5.0)
+```bash
+pnpm build
+```
 
 ## Support
 

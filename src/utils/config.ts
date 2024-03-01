@@ -1,5 +1,5 @@
 import { ThemingProps } from '@chakra-ui/react'
-import { goerli, mainnet, optimism, polygon, avalanche } from '@wagmi/chains'
+import { sepolia, mainnet } from '@wagmi/core'
 
 export const SITE_NAME = 'Gov Deployer'
 export const APP_VERSION = 'v0.1.0-alpha'
@@ -14,7 +14,7 @@ export const THEME_CONFIG = {
 export const SOCIAL_TWITTER = 'W3HC'
 export const SOCIAL_GITHUB = 'w3hc/nexth'
 
-export const ETH_CHAINS = [goerli, mainnet, optimism, polygon, avalanche]
+export const ETH_CHAINS = [sepolia, mainnet]
 export const infuraId = process.env.NEXT_PUBLIC_INFURA_ID
 
 export const NFT_ABI = <const>[
