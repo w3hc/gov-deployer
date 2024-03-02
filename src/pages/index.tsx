@@ -114,7 +114,7 @@ export default function Home() {
 
       // Deploy the NFT contract
       const nftFactory = new ContractFactory(NFT_ABI, NFT_BYTECODE, signer as any)
-      const nft = await nftFactory.deploy(firstMembers, uri, nftName, nftSymbol)
+      const nft = await nftFactory.deploy(address, firstMembers, uri, nftName, nftSymbol)
       console.log('tx:', nft)
       console.log('NFT contract address:', await nft.getAddress())
       console.log('NFT contract deployed ✅')
@@ -292,7 +292,7 @@ export default function Home() {
                   Tally, meaning that you get a fresh interface for your community so that everyone can submit proposals and polls, vote, handle the
                   delegations, etc.
                 </p>
-                <LinkComponent href="https://www.tally.xyz/gov/purple-thistles-co">
+                <LinkComponent href="https://www.tally.xyz/gov/web3-hackers-collective">
                   <Button mt={4} mb={4} colorScheme="purple" size="xs" variant="outline">
                     View an example on Tally
                   </Button>
