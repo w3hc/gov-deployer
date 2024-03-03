@@ -1,5 +1,5 @@
 import React from 'react'
-import { SITE_DESCRIPTION, SITE_NAME, SITE_URL, SOCIAL_TWITTER } from '../../utils/config'
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL, SOCIAL_TWITTER } from 'utils/config'
 import { DefaultSeo } from 'next-seo'
 
 export function Seo() {
@@ -19,7 +19,7 @@ export function Seo() {
         url: origin,
         images: [
           {
-            url: `${origin}/thistle-black-pixel.jpg`,
+            url: `${origin}/huangshan.jpeg`, // The recommended image ratio for an og:image is 1.91:1 (ie. 1200 x 630)
             alt: `${SITE_NAME} Open Graph Image`,
           },
         ],

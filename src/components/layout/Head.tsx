@@ -1,6 +1,6 @@
 import React from 'react'
 import { default as NextHead } from 'next/head'
-import { SITE_DESCRIPTION, SITE_NAME, APP_VERSION } from '../../utils/config'
+import { SITE_DESCRIPTION, SITE_NAME } from 'utils/config'
 
 interface Props {
   title?: string
@@ -10,10 +10,8 @@ interface Props {
 export function Head(props: Props) {
   return (
     <NextHead>
-      <title>
-        {props.title ?? SITE_NAME} {APP_VERSION}{' '}
-      </title>
-      <meta property="og:url" content="https://gov-deployer.on.fleek.co/" />
+      <title>{props.title ?? SITE_NAME} </title>
+      <meta property="og:url" content="https://w3hc-nextjs-boilerplate.netlify.app/" />
       <meta property="og:type" content="website" />
       <meta property="og:title" content={props.title ?? SITE_NAME} />
       <meta name="twitter:card" content={SITE_DESCRIPTION} />
