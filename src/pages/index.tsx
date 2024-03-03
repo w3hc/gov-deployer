@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react'
 import { useAccount, useNetwork, useSwitchNetwork, useBalance } from 'wagmi'
 import { ethers, ContractFactory } from 'ethers'
 import { NFT_ABI, NFT_BYTECODE, GOV_ABI, GOV_BYTECODE } from '../utils/config'
+import { NFTStorage, File } from 'nft.storage'
 
 import { useRouter } from 'next/router'
 import { LinkComponent } from '../components/layout/LinkComponent'
@@ -40,9 +41,9 @@ export default function Home() {
   const provider = useEthersProvider()
   const signer = useEthersSigner()
   const toast = useToast()
-
   const { address, isConnecting, isDisconnected } = useAccount()
   const { data } = useBalance({ address })
+  const client = new NFTStorage({ token: process.env.NEXT_PUBLIC_NFT_STORAGE_API_KEY || '' })
 
   const [firstMembers, setFirstMembers] = useState<any>([
     address,
@@ -63,11 +64,10 @@ export default function Home() {
   const deployDao = async (e: any) => {
     e.preventDefault()
 
-    console.log('balance:', userBal)
-
     try {
       setLoading(true)
       console.log('Deployment started...')
+      console.log('balance:', userBal)
       console.log('daoName:', daoName)
       console.log('missionStatement:', missionStatement)
       console.log('firstMembers:', firstMembers)
@@ -80,6 +80,7 @@ export default function Home() {
       console.log('nftName:', nftName)
       console.log('nftSymbol:', nftSymbol)
       console.log('nftAttributes:', nftAttributes)
+      console.log('client:', client)
 
       if (chain === undefined) {
         toast({
@@ -104,39 +105,88 @@ export default function Home() {
           duration: 9000,
           isClosable: true,
         })
-        setLoading(false)
-        return
       }
 
-      const uri = 'https://bafkreicj62l5xu6pk2xx7x7n6b7rpunxb4ehlh7fevyjapid3556smuz4y.ipfs.w3s.link/'
+      // Manifesto storage
+      const manifestoContent = '# ' + daoName + ' Manifesto ## Statement of intent ' + '**' + missionStatement + '**'
+      console.log('manifestoContents', manifestoContent)
+      const manifestoBlob = new Blob([manifestoContent])
+      const manifestoCid = await client.storeBlob(manifestoBlob)
+      console.log('manifestoCid:', manifestoCid)
+      console.log('manifestoURL:', 'https://' + manifestoCid + '.ipfs.w3s.link')
+
+      // Image storage
+      const someBinaryImageData = plaintext as any
+      const imageFile = new File([someBinaryImageData], 'nft.png', { type: 'image/png' })
+      console.log('imageFile:', imageFile)
+      const nftImageCid = await client.storeBlob(imageFile)
+      console.log('nftImageCid:', nftImageCid)
+
+      // Metadata storage
+      const metadata = {
+        name: nftName,
+        description: 'The owner of this NFT has a right to vote on all DAO proposals.',
+        image: 'ipfs://' + nftImageCid,
+        attributes: [
+          {
+            trait_type: 'Participation rate (%)',
+            value: 'unset',
+          },
+          {
+            trait_type: 'Contribs',
+            value: 'unset',
+          },
+          {
+            trait_type: 'DAO',
+            value: 'unset',
+          },
+          {
+            trait_type: 'Nickname',
+            value: 'unset',
+          },
+          {
+            trait_type: 'Role',
+            value: 'unset',
+          },
+          {
+            trait_type: 'Tally URL',
+            value: 'unset',
+          },
+        ],
+      }
+      console.log('metadata:', metadata)
+      const metadataBlob = new Blob([JSON.stringify(metadata)])
+      const metadataCid = await client.storeBlob(metadataBlob)
+      console.log('metadataCid:', metadataCid)
+      const uri = 'ipfs://' + metadataCid
 
       console.log('chain:', chain)
 
       // Deploy the NFT contract
-      const nftFactory = new ContractFactory(NFT_ABI, NFT_BYTECODE, signer as any)
+      const nftFactory = new ContractFactory(NFT_ABI, NFT_BYTECODE, signer)
       const nft = await nftFactory.deploy(address, firstMembers, uri, nftName, nftSymbol)
-      console.log('tx:', nft)
+      console.log('nft:', await nft.deploymentTransaction()?.wait(1))
       console.log('NFT contract address:', await nft.getAddress())
+      const nftDeployment = await nft.deploymentTransaction()?.wait(1)
       console.log('NFT contract deployed ✅')
-      console.log('nft:', nft)
 
       // Deploy the Gov contract
-      const manifestoContent = '# ' + daoName + ' Manifesto ## Statement of intent ' + '**' + missionStatement + '**'
-      const manifesto = 'https://bafkreifnnreoxxgkhty7v2w3qwiie6cfxpv3vcco2xldekfvbiem3nm6dm.ipfs.w3s.link/'
       const govFactory = new ContractFactory(GOV_ABI, GOV_BYTECODE, signer as any)
-      const gov = await govFactory.deploy(await nft.getAddress(), manifesto, daoName, votingDelay, votingPeriod, votingThreshold, quorum)
-      // console.log('Gov deployment tx:', gov.deployTransaction)
+      const gov = await govFactory.deploy(await nft.getAddress(), manifestoCid, daoName, votingDelay, votingPeriod, votingThreshold, quorum)
+      console.log('gov:', await gov.deploymentTransaction()?.wait(1))
+      const govDeployment = await gov.deploymentTransaction()?.wait(1)
       console.log('Gov contract address:', await gov.getAddress())
-      // const govDeployment = await gov.deployTransaction.wait(1)
       console.log('Gov contract deployed ✅')
 
       // Transfer ownership to the DAO
-      // const ownershipTransfer = await nft.transferOwnership(gov.address)
-      // const receipt = await ownershipTransfer.wait()
-      // console.log('\nNFT contract ownership transferred to the DAO', '✅')
+      const nftInstance = new ethers.Contract(await nft.getAddress(), NFT_ABI, signer as any)
+      const ownershipTransfer = await nftInstance.transferOwnership(await gov.getAddress())
+      await ownershipTransfer.wait(1)
+      console.log('\nNFT contract ownership transferred to the DAO', '✅')
+
       toast({
-        title: 'Successful mint',
-        description: 'Congrats, 10,000 BASIC tokens were minted and sent to your wallet! 🎉',
+        title: 'Successful deployment',
+        description: 'Your DAO is successfully deployed! 🎉',
         status: 'success',
         position: 'bottom',
         variant: 'subtle',
@@ -147,16 +197,15 @@ export default function Home() {
       setIsDeployed(await gov.getAddress())
       setDaoInfo({
         govAddress: await gov.getAddress(),
-        govBlock: 1,
+        govBlock: Number(govDeployment?.blockNumber),
         nftAddress: await nft.getAddress(),
-        nftBlock: 1,
+        nftBlock: Number(nftDeployment?.blockNumber),
       })
     } catch (e: any) {
       console.log('error:', e)
-      console.log('e.message:', e.message)
       toast({
         title: 'Tx failed',
-        description: e.message,
+        description: 'Error during the deployment process',
         status: 'error',
         position: 'bottom',
         variant: 'subtle',
@@ -173,55 +222,9 @@ export default function Home() {
     setNftSymbol(newName.substring(0, 3).toUpperCase())
   }
 
-  // const makeNftMetadata = async () => {
-  //   let nftImageCid: any
-
-  //   console.log('[makeNftMetadata] plaintext:', plaintext)
-  //   console.log('[makeNftMetadata] fileName:', fileName)
-
-  //   nftImageCid = 'https://bafybeichjaz2dxyvsinz2nx4ho4dmx3qkgvtkitymaeh7jsguhrpbknsru.ipfs.w3s.link/thistle-black-pixel.jpg'
-
-  //   console.log('[makeNftMetadata] nftImageCid:', nftImageCid)
-
-  //   const metadata = {
-  //     name: nftName,
-  //     description: 'The owner of this NFT has a right to vote on the test DAO proposals.',
-  //     image: nftImageCid,
-  //     attributes: [
-  //       {
-  //         trait_type: 'Participation rate (%)',
-  //         value: 'unset',
-  //       },
-  //       {
-  //         trait_type: 'Contribs',
-  //         value: 'unset',
-  //       },
-  //       {
-  //         trait_type: 'DAO',
-  //         value: 'unset',
-  //       },
-  //       {
-  //         trait_type: 'Nickname',
-  //         value: 'unset',
-  //       },
-  //       {
-  //         trait_type: 'Role',
-  //         value: 'unset',
-  //       },
-  //       {
-  //         trait_type: 'Tally URL',
-  //         value: 'unset',
-  //       },
-  //     ],
-  //   }
-
-  //   console.log('metadata:', metadata)
-
-  //   return UploadData(metadata, 'metadata.json')
-  // }
-
   const handleFileChange = (event: any) => {
-    const file = event
+    // event.preventDefault()
+    const file = event[0]
     setFileName(file.name)
     setPlaintext(file)
   }
@@ -307,11 +310,15 @@ export default function Home() {
                     <strong>Tally docs</strong>
                   </LinkComponent>{' '}
                   to learn more about about the best practices before you create your DAO. And if you don&apos;t feel super confortable in this
-                  process, feel free to{' '}
+                  process, feel free to ask us in{' '}
                   <LinkComponent href="https://discord.com/invite/uSxzJp3J76">
-                    <strong>ask us in Discord.</strong>
+                    <strong>Discord</strong>
                   </LinkComponent>{' '}
-                  We&apos;re available 24/7!
+                  or{' '}
+                  <LinkComponent href="https://t.me/+5ih-ivs0VVM0NWU0">
+                    <strong>Telegram</strong>
+                  </LinkComponent>
+                  .
                 </p>
               </>
             ) : (
@@ -350,9 +357,9 @@ export default function Home() {
                 id="file_input"
                 type="file"
                 style={{ minWidth: '400px', width: '100%' }}
-                // onChange={(e) => {
-                //   handleFileChange(e.target.files[0])
-                // }}
+                onChange={(e) => {
+                  handleFileChange(e.target?.files)
+                }}
               />
               <FormHelperText>It will be the image of your membership NFT. It can be changed in the future.</FormHelperText>
 
