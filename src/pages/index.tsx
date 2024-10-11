@@ -2,14 +2,13 @@ import * as React from 'react'
 import { Heading, Button, FormControl, FormLabel, Textarea, Input, FormHelperText, useToast, UnorderedList, ListItem } from '@chakra-ui/react'
 import { useState, useEffect } from 'react'
 import { BrowserProvider, Contract, Eip1193Provider, parseEther, ContractFactory } from 'ethers'
-import { useWeb3ModalProvider, useWeb3ModalAccount, useWalletInfo } from '@web3modal/ethers/react'
+import { useAppKitAccount, useAppKitProvider, useAppKit } from '@reown/appkit/react'
 import { LinkComponent } from '../components/layout/LinkComponent'
 import { ethers } from 'ethers'
 import { Head } from '../components/layout/Head'
 import nftContract from '../utils/NFT.json'
 import govContract from '../utils/Gov.json'
-import { ExternalLinkIcon } from '@chakra-ui/icons'
-import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
+import { ExternalLinkIcon, ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { create } from '@web3-storage/w3up-client'
 
 export default function Home() {
@@ -28,25 +27,24 @@ export default function Home() {
   const [nftSymbol, setNftSymbol] = useState('OURDAO')
   const [daoInfo, setDaoInfo] = useState({ govAddress: '', govBlock: 0, nftAddress: '', nftBlock: 0 })
   const [firstMembers, setFirstMembers] = useState<any>(['', '', ''])
-  // const [client, setClient] = useState<Awaited<ReturnType<typeof create>> | null>(null)
   const [file, setFile] = useState<File | null>(null)
 
-  const { address, isConnected, chainId } = useWeb3ModalAccount()
-  const { walletProvider } = useWeb3ModalProvider()
-  const provider = walletProvider
+  const { address, isConnected, caipAddress, status } = useAppKitAccount()
+  const { walletProvider } = useAppKitProvider('eip155')
+  const { open } = useAppKit()
   const toast = useToast()
-  const { walletInfo } = useWalletInfo()
+  console.log('walletProvider:', walletProvider)
 
   useEffect(() => {
     if (isConnected) {
       getNetwork()
       setFirstMembers([address, '0xD8a394e7d7894bDF2C57139fF17e5CBAa29Dd977', '0xe61A1a5278290B6520f0CEf3F2c71Ba70CF5cf4C'])
     }
-  }, [isConnected, address, chainId])
+  }, [isConnected, address, caipAddress])
 
   const getNetwork = async () => {
-    if (provider) {
-      const ethersProvider = new BrowserProvider(provider as any)
+    if (walletProvider) {
+      const ethersProvider = new BrowserProvider(walletProvider as any)
       const network = await ethersProvider.getNetwork()
       const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
       setNetwork(capitalize(network.name))
@@ -74,9 +72,9 @@ export default function Home() {
 
   useEffect(() => {
     if (isDeployed === '') {
-      if (walletInfo) {
-        setUserbal(Number(walletInfo.balance))
-      }
+      // if (walletInfo) {
+      //   setUserbal(Number(walletInfo.balance))
+      // }
     }
   }),
     []
@@ -112,17 +110,17 @@ export default function Home() {
         return
       }
 
-      if (userBal === 0) {
-        toast({
-          title: 'Insufficient funds',
-          description: 'The deployment will cost only a few cents, so you have to have some ETH in your wallet.',
-          status: 'error',
-          duration: 9000,
-          isClosable: true,
-        })
-        setLoading(false)
-        return
-      }
+      // if (userBal === 0) {
+      //   toast({
+      //     title: 'Insufficient funds',
+      //     description: 'The deployment will cost only a few cents, so you have to have some ETH in your wallet.',
+      //     status: 'error',
+      //     duration: 9000,
+      //     isClosable: true,
+      //   })
+      //   setLoading(false)
+      //   return
+      // }
 
       const client = await initializeStorachaClient()
 
@@ -203,7 +201,7 @@ export default function Home() {
       const uri = `ipfs://${metadataCID}`
 
       // Deploy the NFT contract
-      const ethersProvider = new BrowserProvider(provider as Eip1193Provider)
+      const ethersProvider = new BrowserProvider(walletProvider as Eip1193Provider)
       const signer = await ethersProvider.getSigner()
 
       // console.log('nftContract.abi:', nftContract.abi)
@@ -222,6 +220,8 @@ export default function Home() {
         status: 'success',
         duration: 3000,
         isClosable: true,
+        position: 'bottom',
+        variant: 'subtle',
       })
       console.log('NFT contract deployed ✅')
 
@@ -246,6 +246,8 @@ export default function Home() {
         description: 'Contract address: ' + (await gov.getAddress()),
         status: 'success',
         duration: 3000,
+        position: 'bottom',
+        variant: 'subtle',
         isClosable: true,
       })
       console.log('Gov contract deployed ✅')
@@ -254,13 +256,13 @@ export default function Home() {
       const nftInstance = new ethers.Contract(nftContractAddress, nftContract.abi, signer as any)
       const ownershipTransfer = await nftInstance.transferOwnership(await gov.getAddress())
       await ownershipTransfer.wait(1)
-      toast({
-        title: 'NFT contract ownership transferred to the DAO ✅',
-        description: 'tx hash: ' + (await ownershipTransfer.hash),
-        status: 'success',
-        duration: 3000,
-        isClosable: true,
-      })
+      // toast({
+      //   title: 'NFT contract ownership transferred to the DAO ✅',
+      //   description: 'tx hash: ' + (await ownershipTransfer.hash),
+      //   status: 'success',
+      //   duration: 3000,
+      //   isClosable: true,
+      // })
       console.log('\nNFT contract ownership transferred to the DAO', '✅')
 
       toast({

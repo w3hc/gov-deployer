@@ -1,11 +1,9 @@
 import React from 'react'
-import { Flex, useColorModeValue, Spacer, Heading, Box, Link, Icon, Button, Image } from '@chakra-ui/react'
+import { Flex, useColorModeValue, Spacer, Image, Box, Link, Icon } from '@chakra-ui/react'
 import { LinkComponent } from './LinkComponent'
 import { ThemeSwitcher } from './ThemeSwitcher'
-import { SITE_NAME } from '../../utils/config'
 import { FaGithub } from 'react-icons/fa'
-import { useWeb3Modal } from '@web3modal/ethers/react'
-import { useWeb3ModalAccount, useDisconnect, useSwitchNetwork } from '@web3modal/ethers/react'
+import { Web3Modal } from '../../context/web3modal'
 
 interface Props {
   className?: string
@@ -13,23 +11,7 @@ interface Props {
 
 export function Header(props: Props) {
   const className = props.className ?? ''
-  const { open } = useWeb3Modal()
-  const { isConnected } = useWeb3ModalAccount()
-  const { disconnect } = useDisconnect()
-  const { switchNetwork } = useSwitchNetwork()
-
-  const handleAuth = async () => {
-    if (isConnected) {
-      await disconnect()
-    } else {
-      await open()
-    }
-  }
-
-  // TODO: Add a burger menu here
-  // const handleSwitchNetwork = async () => {
-  //   await switchNetwork()
-  // }
+  // const { isConnected, address } = useAppKit()
 
   return (
     <Flex as="header" className={className} bg={useColorModeValue('gray.100', 'gray.900')} px={4} py={5} mb={8} alignItems="center">
@@ -45,13 +27,13 @@ export function Header(props: Props) {
       <Spacer />
 
       <Flex alignItems="center" gap={4}>
-        {/* <Box mt={2} ml={4}> */}
-        {/* Adjust the height as needed */}
-        <w3m-network-button />
-        {/* </Box> */}
-        <Button onClick={handleAuth} colorScheme="blue" size="sm">
-          {isConnected ? 'Logout' : 'Login'}
-        </Button>
+        <w3m-button />
+        {/* <w3m-network-button /> */}
+        {/* {isConnected && address && (
+          <Box>
+            Connected: {address.slice(0, 6)}...{address.slice(-4)}
+          </Box>
+        )} */}
         <Flex alignItems="center">
           <ThemeSwitcher />
           <Box mt={2} ml={4}>
