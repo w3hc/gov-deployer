@@ -1,8 +1,8 @@
-# Gov UI
+# Gov Deployer
 
-Deploy your DAO ([Gov](https://github.com/w3hc/gov)) in a few seconds.
+Deploy your on-chain DAO ([Gov](https://github.com/w3hc/gov)) in a few seconds.
 
-Live at [https://gov-deployer.on.fleek.co/](https://gov-deployer.on.fleek.co/)
+Live at [https://gov-deployer.netlify.app](https://gov-deployer.netlify.app)
 
 ## Install
 
@@ -30,6 +30,21 @@ pnpm dev
 pnpm build
 ```
 
+## Supported networks
+
+### Mainnets
+
+- `OP Mainnet`
+
+### Testnets
+
+- `Sepolia`
+
+## Versions
+
+- pnpm `v9.10.0`
+- node `v20.9.0`
+
 ## Support
 
-You can contact me via [Element](https://matrix.to/#/@julienbrg:matrix.org), [Telegram](https://t.me/julienbrg), [Twitter](https://twitter.com/julienbrg), [Discord](https://discord.gg/uSxzJp3J76), or [LinkedIn](https://www.linkedin.com/in/julienberanger/).
+You can contact me via [Element](https://matrix.to/#/@julienbrg:matrix.org), [Farcaster](https://warpcast.com/julien-), [Telegram](https://t.me/julienbrg), [Twitter](https://twitter.com/julienbrg), [Discord](https://discordapp.com/users/julienbrg), or [LinkedIn](https://www.linkedin.com/in/julienberanger/).
