@@ -1,34 +1,22 @@
 'use client'
-import { ReactNode } from 'react'
-import { createWeb3Modal, defaultConfig } from '@web3modal/ethers/react'
-
-interface Props {
-  children?: ReactNode
-}
+import React, { ReactNode, createContext, useContext } from 'react'
+import { createAppKit, useAppKitProvider } from '@reown/appkit/react'
+import { EthersAdapter } from '@reown/appkit-adapter-ethers'
+import { sepolia, optimism } from '@reown/appkit/networks'
 
 const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || ''
 const optimismEndpoint = process.env.NEXT_PUBLIC_OPTIMISM_RPC_ENDPOINT_URL || 'https://mainnet.optimism.io'
-const sepoliaEndpoint = process.env.NEXT_PUBLIC_SEPOLIA_RPC_ENDPOINT_URL || 'https://sepolia.gateway.tenderly.co'
+const sepoliaEndpoint = process.env.NEXT_PUBLIC_SEPOLIA_RPC_ENDPOINT_URL || 'https://sepolia.infura.io/v3/your-infura-id'
 
-const sepolia = {
-  chainId: 11155111,
-  name: 'Sepolia',
-  chainName: 'Sepolia',
-  currency: 'ETH',
-  explorerUrl: 'https://sepolia.etherscan.io',
-  rpcUrl: sepoliaEndpoint,
-  blockExplorerUrl: 'https://sepolia.etherscan.io',
-}
+// const customSepolia = {
+//   ...sepolia,
+//   rpcUrl: sepoliaEndpoint,
+// }
 
-const optimism = {
-  chainId: 10,
-  name: 'Optimism',
-  chainName: 'Optimism',
-  currency: 'ETH',
-  explorerUrl: 'https://optimistic.etherscan.io/',
-  rpcUrl: optimismEndpoint,
-  blockExplorerUrl: 'https://optimistic.etherscan.io/',
-}
+// const customOptimism = {
+//   ...optimism,
+//   rpcUrl: optimismEndpoint,
+// }
 
 const metadata = {
   name: 'Gov Deployer',
@@ -37,30 +25,25 @@ const metadata = {
   icons: ['./favicon.ico'],
 }
 
-const ethersConfig = defaultConfig({
+createAppKit({
+  adapters: [new EthersAdapter()],
   metadata,
-  // defaultChainId: 11155111, // Sepolia
-  defaultChainId: 10, // Optimism
-  rpcUrl: optimismEndpoint,
-  auth: {
-    email: true,
-    // socials: ['google', 'x', 'github', 'discord', 'apple'],
-    socials: ['google', 'farcaster'],
-    showWallets: true,
-    walletFeatures: true,
-  },
-})
-
-createWeb3Modal({
-  ethersConfig,
-  chains: [optimism, sepolia],
+  networks: [sepolia, optimism],
   projectId,
-  enableAnalytics: true,
-  enableOnramp: true,
-  themeMode: 'dark',
-  themeVariables: {},
 })
 
-export function Web3Modal({ children }: Props) {
-  return <div>{children}</div>
+const AppKitContext = createContext<ReturnType<typeof useAppKitProvider> | null>(null)
+
+export function Web3Modal({ children }: { children: ReactNode }) {
+  const appKitProvider = useAppKitProvider('eip155:11155111' as any)
+
+  return <AppKitContext.Provider value={appKitProvider}>{children}</AppKitContext.Provider>
+}
+
+export function useAppKit() {
+  const context = useContext(AppKitContext)
+  if (!context) {
+    throw new Error('useAppKit must be used within a Web3Modal')
+  }
+  return context
 }
