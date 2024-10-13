@@ -3,7 +3,6 @@ import { Flex, useColorModeValue, Spacer, Image, Box, Link, Icon } from '@chakra
 import { LinkComponent } from './LinkComponent'
 import { ThemeSwitcher } from './ThemeSwitcher'
 import { FaGithub } from 'react-icons/fa'
-import { Web3Modal } from '../../context/web3modal'
 
 interface Props {
   className?: string
@@ -11,7 +10,6 @@ interface Props {
 
 export function Header(props: Props) {
   const className = props.className ?? ''
-  // const { isConnected, address } = useAppKit()
 
   return (
     <Flex as="header" className={className} bg={useColorModeValue('gray.100', 'gray.900')} px={4} py={5} mb={8} alignItems="center">
@@ -27,13 +25,8 @@ export function Header(props: Props) {
       <Spacer />
 
       <Flex alignItems="center" gap={4}>
-        <w3m-button />
-        {/* <w3m-network-button /> */}
-        {/* {isConnected && address && (
-          <Box>
-            Connected: {address.slice(0, 6)}...{address.slice(-4)}
-          </Box>
-        )} */}
+        <w3m-network-button />
+        <w3m-account-button />
         <Flex alignItems="center">
           <ThemeSwitcher />
           <Box mt={2} ml={4}>
