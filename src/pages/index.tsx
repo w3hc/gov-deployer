@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { Heading, Button, FormControl, FormLabel, Textarea, Input, FormHelperText, useToast, UnorderedList, ListItem } from '@chakra-ui/react'
 import { useState, useEffect } from 'react'
-import { BrowserProvider, Contract, Eip1193Provider, parseEther, ContractFactory } from 'ethers'
+import { BrowserProvider, Contract, Eip1193Provider, formatEther, ContractFactory } from 'ethers'
 import { useAppKitAccount, useAppKitProvider, useAppKit } from '@reown/appkit/react'
 import { LinkComponent } from '../components/layout/LinkComponent'
 import { ethers } from 'ethers'
@@ -27,16 +27,17 @@ export default function Home() {
   const [daoInfo, setDaoInfo] = useState({ govAddress: '', govBlock: 0, nftAddress: '', nftBlock: 0 })
   const [firstMembers, setFirstMembers] = useState<any>(['', '', ''])
   const [file, setFile] = useState<File | null>(null)
-  const [email, setEmail] = useState('julien@strat.cc')
+  const [email, setEmail] = useState('')
+  const [balance, setBalance] = useState<string>('0')
 
-  const { address, isConnected, caipAddress, status } = useAppKitAccount()
+  const { address, isConnected, caipAddress } = useAppKitAccount()
   const { walletProvider } = useAppKitProvider('eip155')
   const toast = useToast()
-  console.log('walletProvider:', walletProvider)
 
   useEffect(() => {
     if (isConnected) {
       getNetwork()
+      getBalance()
       setFirstMembers([address, '0xD8a394e7d7894bDF2C57139fF17e5CBAa29Dd977', '0xe61A1a5278290B6520f0CEf3F2c71Ba70CF5cf4C'])
     }
   }, [isConnected, address, caipAddress])
@@ -47,6 +48,15 @@ export default function Home() {
       const network = await ethersProvider.getNetwork()
       const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
       setNetwork(capitalize(network.name))
+    }
+  }
+
+  const getBalance = async () => {
+    if (walletProvider && address) {
+      const ethersProvider = new BrowserProvider(walletProvider as any)
+      const balance = await ethersProvider.getBalance(address)
+      setBalance(formatEther(balance))
+      console.log('user balance:', Number(balance))
     }
   }
 
@@ -106,6 +116,31 @@ export default function Home() {
           status: 'error',
           position: 'bottom',
           variant: 'subtle',
+          duration: 9000,
+          isClosable: true,
+        })
+        setLoading(false)
+        return
+      }
+
+      if (Number(balance) === 0) {
+        console.log('balance too low')
+        toast({
+          title: 'Insufficient balance',
+          description: 'You need some ETH to deploy. Maybe try to select another network. Sorry for the inconvenience.',
+          status: 'warning',
+          duration: 9000,
+          isClosable: true,
+        })
+        setLoading(false)
+        return
+      }
+
+      if (!email) {
+        toast({
+          title: 'Email address missing',
+          description: "Please share an email address so you get full control over your DAO data storage. We don't keep it!",
+          status: 'warning',
           duration: 9000,
           isClosable: true,
         })
@@ -360,6 +395,7 @@ export default function Home() {
               </>
             )}
             <br />
+            {balance && <strong>{parseFloat(balance).toFixed(4)} ETH</strong>}
             <FormControl mt={4}>
               <FormLabel>Your email address</FormLabel>
               <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Enter your email" />
