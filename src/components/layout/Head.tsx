@@ -18,7 +18,7 @@ export function Head({ title, description }: Props) {
       <meta property="og:image" content={img} />
       <meta name="twitter:card" content={img} />
       <meta name="twitter:site" content="@W3HC8" />
-      <meta name="twitter:title" content="Genji" />
+      <meta name="twitter:title" content="Gov Deployer" />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={img} />
       <meta
