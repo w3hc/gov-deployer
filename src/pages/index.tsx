@@ -18,7 +18,6 @@ export default function Home() {
   const [isDeployed, setIsDeployed] = useState('')
   const [daoName, setDaoName] = useState('Our DAO')
   const [missionStatement, setMissionStatement] = useState('We want to achieve this and that.')
-  const [userBal, setUserbal] = useState(0)
   const [votingPeriod, setVotingPeriod] = useState('1296000')
   const [votingDelay, setVotingDelay] = useState('1')
   const [votingThreshold, setVotingThreshold] = useState('1')
@@ -28,10 +27,10 @@ export default function Home() {
   const [daoInfo, setDaoInfo] = useState({ govAddress: '', govBlock: 0, nftAddress: '', nftBlock: 0 })
   const [firstMembers, setFirstMembers] = useState<any>(['', '', ''])
   const [file, setFile] = useState<File | null>(null)
+  const [email, setEmail] = useState('julien@strat.cc')
 
   const { address, isConnected, caipAddress, status } = useAppKitAccount()
   const { walletProvider } = useAppKitProvider('eip155')
-  const { open } = useAppKit()
   const toast = useToast()
   console.log('walletProvider:', walletProvider)
 
@@ -51,33 +50,37 @@ export default function Home() {
     }
   }
 
-  const initializeStorachaClient = async () => {
+  const createSpaceForUser = async () => {
     try {
-      const newClient = await create()
-      console.log('NEXT_PUBLIC_STORACHA_LOGIN:', process.env.NEXT_PUBLIC_STORACHA_LOGIN)
-      await newClient.login(process.env.NEXT_PUBLIC_STORACHA_LOGIN as any)
-      await newClient.setCurrentSpace(process.env.NEXT_PUBLIC_STORACHA_SPACE_DID as any)
-      return newClient
+      const client = await create()
+      const account = await client.login(email as any)
+
+      await account.plan.wait()
+
+      let space
+      const spaces = await client.spaces()
+      if (spaces.length > 0) {
+        space = spaces[0]
+      } else {
+        space = await client.createSpace('gov-deployer')
+      }
+
+      await client.setCurrentSpace(space.did())
+      console.log('Space DID:', space.did())
+
+      return { client, space }
     } catch (error) {
-      console.error('Storacha client initialization error:', error)
+      console.error('Error creating/getting space:', error)
       toast({
-        title: "Couldn't inititialize Storacha client",
-        description: 'Sorry for the inconvenience. Please try again later.',
+        title: 'Error with storage space',
+        description: 'An error occurred while setting up your storage space: ' + (error as Error).message,
         status: 'error',
-        duration: 9000,
+        duration: 5000,
         isClosable: true,
       })
+      throw error
     }
   }
-
-  useEffect(() => {
-    if (isDeployed === '') {
-      // if (walletInfo) {
-      //   setUserbal(Number(walletInfo.balance))
-      // }
-    }
-  }),
-    []
 
   const deployDao = async (e: any) => {
     e.preventDefault()
@@ -110,19 +113,7 @@ export default function Home() {
         return
       }
 
-      // if (userBal === 0) {
-      //   toast({
-      //     title: 'Insufficient funds',
-      //     description: 'The deployment will cost only a few cents, so you have to have some ETH in your wallet.',
-      //     status: 'error',
-      //     duration: 9000,
-      //     isClosable: true,
-      //   })
-      //   setLoading(false)
-      //   return
-      // }
-
-      const client = await initializeStorachaClient()
+      const { client } = await createSpaceForUser()
 
       // checks if the Web3 Storage client is ready
       if (!client) {
@@ -137,6 +128,16 @@ export default function Home() {
         return
       }
 
+      toast({
+        title: 'Please check your emails',
+        description: 'You may have received an email from Web3 Storage. Your approval is required to store the DAO data.',
+        status: 'info',
+        position: 'bottom',
+        variant: 'subtle',
+        duration: 12000,
+        isClosable: true,
+      })
+
       // Manifesto storage
       const manifestoContent = `# ${daoName} Manifesto\n\n## Statement of Intent\n\n**${missionStatement}**`
       console.log('manifestoContents', manifestoContent)
@@ -149,12 +150,6 @@ export default function Home() {
       // Image storage
       let imageCID = 'bafkreibtyrgtm4cfilmrq6ax3s6vrhsyuesul5tkpuve66euozph2wg6iq' // default image (Huangshan)
       if (!file) {
-        // toast({
-        //   title: 'Default image selected',
-        //   status: 'info',
-        //   duration: 3000,
-        //   isClosable: true,
-        // })
       } else {
         imageCID = (await client.uploadFile(file)) as any
       }
@@ -166,32 +161,6 @@ export default function Home() {
         name: nftName,
         description: 'The owner of this NFT has a right to vote on all DAO proposals.',
         image: 'ipfs://' + imageCID,
-        // attributes: [
-        //   {
-        //     trait_type: 'Participation rate (%)',
-        //     value: 'unset',
-        //   },
-        //   {
-        //     trait_type: 'Contribs',
-        //     value: 'unset',
-        //   },
-        //   {
-        //     trait_type: 'DAO',
-        //     value: 'unset',
-        //   },
-        //   {
-        //     trait_type: 'Nickname',
-        //     value: 'unset',
-        //   },
-        //   {
-        //     trait_type: 'Role',
-        //     value: 'unset',
-        //   },
-        //   {
-        //     trait_type: 'Tally URL',
-        //     value: 'unset',
-        //   },
-        // ],
       }
       console.log('metadata:', metadata)
       const metadataBlob = new Blob([JSON.stringify(metadata)], { type: 'application/json' })
@@ -203,9 +172,6 @@ export default function Home() {
       // Deploy the NFT contract
       const ethersProvider = new BrowserProvider(walletProvider as Eip1193Provider)
       const signer = await ethersProvider.getSigner()
-
-      // console.log('nftContract.abi:', nftContract.abi)
-      // console.log('nftContract.bytecode:', nftContract.bytecode)
       console.log('firstMembers:', firstMembers)
 
       const nftFactory = new ContractFactory(nftContract.abi, nftContract.bytecode, signer)
@@ -216,7 +182,6 @@ export default function Home() {
       const nftDeployment = await nft.deploymentTransaction()?.wait(1)
       toast({
         title: 'NFT contract deployed ✅',
-        // description: '',
         status: 'success',
         duration: 3000,
         isClosable: true,
@@ -226,8 +191,6 @@ export default function Home() {
       console.log('NFT contract deployed ✅')
 
       // Deploy the Gov contract
-      // console.log('govContract.abi:', govContract.abi)
-      // console.log('govContract.bytecode:', govContract.bytecode)
       const govFactory = new ContractFactory(govContract.abi, govContract.bytecode, signer as any)
       const nftContractAddress = await nft.getAddress()
       console.log('manifestoCID:', manifestoCID)
@@ -256,13 +219,6 @@ export default function Home() {
       const nftInstance = new ethers.Contract(nftContractAddress, nftContract.abi, signer as any)
       const ownershipTransfer = await nftInstance.transferOwnership(await gov.getAddress())
       await ownershipTransfer.wait(1)
-      // toast({
-      //   title: 'NFT contract ownership transferred to the DAO ✅',
-      //   description: 'tx hash: ' + (await ownershipTransfer.hash),
-      //   status: 'success',
-      //   duration: 3000,
-      //   isClosable: true,
-      // })
       console.log('\nNFT contract ownership transferred to the DAO', '✅')
 
       toast({
@@ -404,7 +360,15 @@ export default function Home() {
               </>
             )}
             <br />
-            <FormControl>
+            <FormControl mt={4}>
+              <FormLabel>Your email address</FormLabel>
+              <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Enter your email" />
+              <FormHelperText>
+                <strong>We don&apos;t even keep it</strong>: Storacha (formerly Web3 Storage) will send you an email so it can store your DAO data in
+                the most decentralized fashion.{' '}
+              </FormHelperText>
+              <br />
+              <br />
               <FormLabel>DAO Name</FormLabel>
               <Input value={daoName} onChange={(e) => handleDaoNameChange(e.target.value)} placeholder="Our DAO" />
               <FormHelperText>Choose something that sounds good and eventually echoes your DAO mission statement.</FormHelperText>
