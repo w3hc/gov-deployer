@@ -26,6 +26,7 @@ export default function Home() {
   const [nftSymbol, setNftSymbol] = useState('OURDAO')
   const [daoInfo, setDaoInfo] = useState({ govAddress: '', govBlock: 0, nftAddress: '', nftBlock: 0 })
   const [firstMembers, setFirstMembers] = useState<any>([''])
+  const [nativeCurrencyTicker, setNativeCurrencyTicker] = useState<any>('ETH')
 
   const [file, setFile] = useState<File | null>(null)
   const [balance, setBalance] = useState<string>('0')
@@ -41,14 +42,38 @@ export default function Home() {
       setFirstMembers([address])
     }
     console.log('network:', network)
-  }, [isConnected, address, caipAddress])
+  }, [isConnected, address, caipAddress, network])
 
   const getNetwork = async () => {
     if (walletProvider) {
       const ethersProvider = new BrowserProvider(walletProvider as any)
       const network = await ethersProvider.getNetwork()
       const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
-      setNetwork(capitalize(network.name))
+
+      // Map chain IDs to network names and native currency
+      const networkInfo: { [key: number]: { name: string; currency: string } } = {
+        1: { name: 'ethereum', currency: 'ETH' },
+        42220: { name: 'celo', currency: 'CELO' },
+        137: { name: 'polygon', currency: 'MATIC' },
+        42161: { name: 'arbitrum', currency: 'ETH' },
+        10: { name: 'optimism', currency: 'ETH' },
+        100: { name: 'gnosis', currency: 'xDAI' },
+        8453: { name: 'base', currency: 'ETH' },
+        324: { name: 'zksync', currency: 'ETH' },
+        5000: { name: 'mantle', currency: 'MNT' },
+        43114: { name: 'avalanche', currency: 'AVAX' },
+      }
+
+      const chainId = Number(network.chainId)
+      const info = networkInfo[chainId] || { name: network.name, currency: 'ETH' }
+
+      console.log('chainId:', chainId)
+      console.log('network name:', info.name)
+      console.log('native currency:', info.currency)
+
+      setNetwork(capitalize(info.name))
+      setNativeCurrencyTicker(info.currency)
+      return info.currency // Return the currency ticker if you need it elsewhere
     }
   }
 
@@ -349,7 +374,7 @@ export default function Home() {
           <>
             <Heading as="h2">Deploy your DAO</Heading>
             <br />{' '}
-            {network === 'Unknown' ? (
+            {!isConnected ? (
               <>
                 <p style={{ color: 'red' }}>Please connect your wallet.</p>
               </>
@@ -361,7 +386,10 @@ export default function Home() {
                   provides fresh interface for your community so that everyone can submit proposals and polls, vote, handle the delegations, etc.
                 </p>
                 <br />
-                <p>Your current wallet balance is {parseFloat(balance).toFixed(4)} ETH, and you actually need some ETH to deploy.</p>
+                <p>
+                  Your current wallet balance is {parseFloat(balance).toFixed(4)} {nativeCurrencyTicker}, and you actually need some{' '}
+                  {nativeCurrencyTicker} to deploy.
+                </p>
                 <LinkComponent href="https://www.tally.xyz/gov/web3-hackers-collective">
                   <Button mt={6} mb={6} colorScheme="purple" size="xs" variant="outline">
                     View an example on Tally
