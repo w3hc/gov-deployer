@@ -15,6 +15,8 @@ export function Header(props: Props) {
     <Flex as="header" className={className} bg={useColorModeValue('gray.100', 'gray.900')} px={4} py={5} mb={8} alignItems="center">
       <LinkComponent href="/">
         <Image
+          minWidth={50}
+          mr={4}
           width="50"
           height="50"
           alt="gov-deployer-logo"
