@@ -13,18 +13,17 @@ interface Props {
 export function LinkComponent(props: Props) {
   const className = props.className ?? ''
   const isExternal = props.href.match(/^([a-z0-9]*:|.{0})\/\/.*$/) || props.isExternal
-  const color = useColorModeValue(`${THEME_COLOR_SCHEME}.600`, `${THEME_COLOR_SCHEME}.400`)
 
   if (isExternal) {
     return (
-      <Link className={className} _hover={{ color: '#8c1c84' }} href={props.href} target="_blank" rel="noopener noreferrer">
+      <Link className={className} color="#45a2f8" _hover={{ color: '#3182ce' }} href={props.href} target="_blank" rel="noopener noreferrer">
         {props.children}
       </Link>
     )
   }
 
   return (
-    <Link as={NextLink} className={className} _hover={{ color: color }} href={props.href}>
+    <Link as={NextLink} className={className} color="#45a2f8" _hover={{ color: '#3182ce' }} href={props.href}>
       {props.children}
     </Link>
   )

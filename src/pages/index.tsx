@@ -19,15 +19,15 @@ export default function Home() {
   const [daoName, setDaoName] = useState('Our DAO')
   const [missionStatement, setMissionStatement] = useState('We want to achieve this and that.')
   const [votingPeriod, setVotingPeriod] = useState('1296000')
-  const [votingDelay, setVotingDelay] = useState('1')
+  const [votingDelay, setVotingDelay] = useState('0')
   const [votingThreshold, setVotingThreshold] = useState('1')
   const [quorum, setQuorum] = useState('20')
   const [nftName, setNftName] = useState(daoName + ' Membership NFT')
   const [nftSymbol, setNftSymbol] = useState('OURDAO')
   const [daoInfo, setDaoInfo] = useState({ govAddress: '', govBlock: 0, nftAddress: '', nftBlock: 0 })
-  const [firstMembers, setFirstMembers] = useState<any>(['', '', ''])
+  const [firstMembers, setFirstMembers] = useState<any>([''])
+
   const [file, setFile] = useState<File | null>(null)
-  const [email, setEmail] = useState('')
   const [balance, setBalance] = useState<string>('0')
 
   const { address, isConnected, caipAddress } = useAppKitAccount()
@@ -38,8 +38,9 @@ export default function Home() {
     if (isConnected) {
       getNetwork()
       getBalance()
-      setFirstMembers([address, '0xD8a394e7d7894bDF2C57139fF17e5CBAa29Dd977', '0xe61A1a5278290B6520f0CEf3F2c71Ba70CF5cf4C'])
+      setFirstMembers([address])
     }
+    console.log('network:', network)
   }, [isConnected, address, caipAddress])
 
   const getNetwork = async () => {
@@ -63,27 +64,30 @@ export default function Home() {
   const createSpaceForUser = async () => {
     try {
       const client = await create()
-      const account = await client.login(email as any)
-
+      const account = await client.login('julien@strat.cc')
       await account.plan.wait()
 
-      let space
+      // Get existing spaces
       const spaces = await client.spaces()
+      let space
+
+      // Use the first available space or create one if none exists
       if (spaces.length > 0) {
         space = spaces[0]
       } else {
         space = await client.createSpace('gov-deployer')
       }
 
+      // Set the current space
       await client.setCurrentSpace(space.did())
       console.log('Space DID:', space.did())
 
       return { client, space }
     } catch (error) {
-      console.error('Error creating/getting space:', error)
+      console.error('Error accessing storage space:', error)
       toast({
-        title: 'Error with storage space',
-        description: 'An error occurred while setting up your storage space: ' + (error as Error).message,
+        title: 'Storage Error',
+        description: 'There was an issue with the storage service. Please try again.',
         status: 'error',
         duration: 5000,
         isClosable: true,
@@ -136,18 +140,6 @@ export default function Home() {
         return
       }
 
-      if (!email) {
-        toast({
-          title: 'Email address missing',
-          description: "Please share an email address so you get full control over your DAO data storage. We don't keep it!",
-          status: 'warning',
-          duration: 9000,
-          isClosable: true,
-        })
-        setLoading(false)
-        return
-      }
-
       const { client } = await createSpaceForUser()
 
       // checks if the Web3 Storage client is ready
@@ -162,16 +154,6 @@ export default function Home() {
         setLoading(false)
         return
       }
-
-      toast({
-        title: 'Please check your emails',
-        description: 'You may have received an email from Web3 Storage. Your approval is required to store the DAO data.',
-        status: 'info',
-        position: 'bottom',
-        variant: 'subtle',
-        duration: 12000,
-        isClosable: true,
-      })
 
       // Manifesto storage
       const manifestoContent = `# ${daoName} Manifesto\n\n## Statement of Intent\n\n**${missionStatement}**`
@@ -300,6 +282,15 @@ export default function Home() {
     }
   }
 
+  const handleFirstMembersChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    // Split by either newlines or commas and clean up the addresses
+    const addresses = e.target.value
+      .split(/[\n,]/) // Split by newline or comma
+      .map((addr) => addr.trim())
+      .filter((addr) => addr !== '')
+    setFirstMembers(addresses)
+  }
+
   return (
     <>
       <Head />
@@ -358,20 +349,26 @@ export default function Home() {
           <>
             <Heading as="h2">Deploy your DAO</Heading>
             <br />{' '}
-            {network ? (
+            {network === 'Unknown' ? (
+              <>
+                <p style={{ color: 'red' }}>Please connect your wallet.</p>
+              </>
+            ) : (
               <>
                 <p>
                   You&apos;re about to deploy your own DAO to <strong>{network}</strong>. This means you will deploy <strong>two</strong> Solidity
                   contracts: a membership NFT contract (ERC-721) and a Governor contract. Once deployed, you&apos;ll be able to add it in Tally, which
                   provides fresh interface for your community so that everyone can submit proposals and polls, vote, handle the delegations, etc.
                 </p>
+                <br />
+                <p>Your current wallet balance is {parseFloat(balance).toFixed(4)} ETH, and you actually need some ETH to deploy.</p>
                 <LinkComponent href="https://www.tally.xyz/gov/web3-hackers-collective">
-                  <Button mt={4} mb={4} colorScheme="purple" size="xs" variant="outline">
+                  <Button mt={6} mb={6} colorScheme="purple" size="xs" variant="outline">
                     View an example on Tally
                   </Button>
                 </LinkComponent>{' '}
                 <p>
-                  It is highly recommended to{' '}
+                  We highly recommend to{' '}
                   <LinkComponent href="https://w3hc.github.io/gov-docs/deployment.html#deployment">
                     <strong>read our docs</strong>
                   </LinkComponent>{' '}
@@ -386,29 +383,13 @@ export default function Home() {
                   </LinkComponent>
                   .
                 </p>
-                {/* TODO: add a paragraph about getting some ETH if you don't have any */}
-              </>
-            ) : (
-              <>
-                <p style={{ color: 'red' }}>Please connect your wallet.</p>
-                <br />
               </>
             )}
             <br />
-            {balance && <strong>{parseFloat(balance).toFixed(4)} ETH</strong>}
             <FormControl mt={4}>
-              <FormLabel>Your email address</FormLabel>
-              <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Enter your email" />
-              <FormHelperText>
-                <strong>We don&apos;t even keep it</strong>: Storacha (formerly Web3 Storage) will send you an email so it can store your DAO data in
-                the most decentralized fashion.{' '}
-              </FormHelperText>
-              <br />
-              <br />
               <FormLabel>DAO Name</FormLabel>
               <Input value={daoName} onChange={(e) => handleDaoNameChange(e.target.value)} placeholder="Our DAO" />
               <FormHelperText>Choose something that sounds good and eventually echoes your DAO mission statement.</FormHelperText>
-
               <br />
               <br />
               <FormLabel>Mission statement</FormLabel>
@@ -416,22 +397,23 @@ export default function Home() {
               <FormHelperText>
                 Extremely important. It should probably begin with &quot;We want to&quot;. It will require a community vote to change it.
               </FormHelperText>
-
               <br />
               <br />
-              <FormLabel>First members wallet adresses</FormLabel>
-              <Textarea value={firstMembers} onChange={(e) => setFirstMembers(e.target.value)} placeholder={firstMembers} />
+              <Textarea
+                value={Array.isArray(firstMembers) ? firstMembers.join('\n') : firstMembers}
+                onChange={handleFirstMembersChange}
+                placeholder={address}
+              />
               <FormHelperText>
-                One membership NFT will be minted and sent to each one of these wallet addresses. These people will become the first members and get
-                100% of the voting power.
+                Enter Ethereum addresses, one per line. A membership NFT will be minted and sent to each address. These addresses will become the
+                first members and share 100% of the initial voting power equally.{' '}
+                <strong>By default, your connected wallet ({address}) will be the first member.</strong>
               </FormHelperText>
               <br />
               <br />
               <FormLabel>DAO Membership NFT image</FormLabel>
               <Input type="file" onChange={handleFileChange} />
-
               <FormHelperText>It will be the image of your membership NFT. It can be changed in the future.</FormHelperText>
-
               {!showAdvanced && (
                 <>
                   <br />
@@ -441,7 +423,6 @@ export default function Home() {
                   </Button>
                 </>
               )}
-
               {showAdvanced && (
                 <>
                   <br />
