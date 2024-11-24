@@ -5,23 +5,6 @@ import { EthersAdapter } from '@reown/appkit-adapter-ethers'
 import { sepolia, optimism, zksync, base, arbitrum, gnosis, polygon, polygonZkEvm, mantle, celo, avalanche, degen } from '@reown/appkit/networks'
 
 const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || ''
-// const optimismEndpoint = process.env.NEXT_PUBLIC_OPTIMISM_RPC_ENDPOINT_URL || 'https://mainnet.optimism.io'
-// const sepoliaEndpoint = process.env.NEXT_PUBLIC_SEPOLIA_RPC_ENDPOINT_URL || 'https://sepolia.infura.io/v3/your-infura-id'
-
-// const customSepolia = {
-//   ...sepolia,
-//   rpcUrl: sepoliaEndpoint,
-// }
-
-// const customOptimism = {
-//   ...optimism,
-//   rpcUrl: optimismEndpoint,
-// }
-
-// const customMantle = {
-//   ...sepolia,
-//   image: 'https://mantle.finance/logo.png',
-// }
 
 const metadata = {
   name: 'Gov Deployer',
