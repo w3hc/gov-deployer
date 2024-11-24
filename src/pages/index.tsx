@@ -19,7 +19,7 @@ export default function Home() {
   const [daoName, setDaoName] = useState('Our DAO')
   const [missionStatement, setMissionStatement] = useState('We want to achieve this and that.')
   const [votingPeriod, setVotingPeriod] = useState('1296000')
-  const [votingDelay, setVotingDelay] = useState('1')
+  const [votingDelay, setVotingDelay] = useState('0')
   const [votingThreshold, setVotingThreshold] = useState('1')
   const [quorum, setQuorum] = useState('20')
   const [nftName, setNftName] = useState(daoName + ' Membership NFT')
@@ -40,6 +40,7 @@ export default function Home() {
       getBalance()
       setFirstMembers([address, '0xD8a394e7d7894bDF2C57139fF17e5CBAa29Dd977', '0xe61A1a5278290B6520f0CEf3F2c71Ba70CF5cf4C'])
     }
+    console.log('network:', network)
   }, [isConnected, address, caipAddress])
 
   const getNetwork = async () => {
@@ -358,20 +359,26 @@ export default function Home() {
           <>
             <Heading as="h2">Deploy your DAO</Heading>
             <br />{' '}
-            {network ? (
+            {network === 'Unknown' ? (
+              <>
+                <p style={{ color: 'red' }}>Please connect your wallet.</p>
+              </>
+            ) : (
               <>
                 <p>
                   You&apos;re about to deploy your own DAO to <strong>{network}</strong>. This means you will deploy <strong>two</strong> Solidity
                   contracts: a membership NFT contract (ERC-721) and a Governor contract. Once deployed, you&apos;ll be able to add it in Tally, which
                   provides fresh interface for your community so that everyone can submit proposals and polls, vote, handle the delegations, etc.
                 </p>
+                <br />
+                <p>Your current wallet balance is {parseFloat(balance).toFixed(4)} ETH, and you actually need some ETH to deploy.</p>
                 <LinkComponent href="https://www.tally.xyz/gov/web3-hackers-collective">
                   <Button mt={4} mb={4} colorScheme="purple" size="xs" variant="outline">
                     View an example on Tally
                   </Button>
                 </LinkComponent>{' '}
                 <p>
-                  It is highly recommended to{' '}
+                  We highly recommend to{' '}
                   <LinkComponent href="https://w3hc.github.io/gov-docs/deployment.html#deployment">
                     <strong>read our docs</strong>
                   </LinkComponent>{' '}
@@ -388,14 +395,9 @@ export default function Home() {
                 </p>
                 {/* TODO: add a paragraph about getting some ETH if you don't have any */}
               </>
-            ) : (
-              <>
-                <p style={{ color: 'red' }}>Please connect your wallet.</p>
-                <br />
-              </>
             )}
             <br />
-            {balance && <strong>{parseFloat(balance).toFixed(4)} ETH</strong>}
+            {/* {balance && <strong>{parseFloat(balance).toFixed(4)} ETH</strong>} */}
             <FormControl mt={4}>
               <FormLabel>Your email address</FormLabel>
               <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Enter your email" />
